@@ -1,3 +1,5 @@
+const API_URL = 'http://caterpillar:8080'
+
 containers = document.getElementById('containers')
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
@@ -18,18 +20,27 @@ function createContainer(data) {
     containerElem.appendChild(statusElem)
     containerElem.insertBefore(document.createElement('br'), statusElem)
 
-    containers.appendChild(containerElem)
+    containersList.appendChild(containerElem)
 }
 
-createContainer({
-    "id": "a071b35d2313",
-    "image": "tailscale/tailscale:stable",
-    "name": "tailscale",
-    "state": "running",
-    "status": "Up 2 weeks",
-    "displayName": "Tailscale",
-    "icon": '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Tailscale</title><path d="M24 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-9 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm0-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6-6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 24a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm18 .5a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm9-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-3 2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 5.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>'
-})
+async function loadContainers() {
+    containers.innerHTML = '';
+    containersList = document.createElement('ul')
+    containers.appendChild(containersList)
+    
+    try {
+        const response = await fetch(`${API_URL}/`, { cache: 'no-store' })
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+        }
+        const items = await response.json()
+        items.forEach(createContainer)
+    } catch (err) {
+        containers.innerHTML = '<span id="error">Failed to load containers</span>';
+    }
+}
+
+loadContainers()
 
 if (!navigator.userAgent.includes("Kindle") && !navigator.userAgent.includes("Silk")) {
     document.body.style.height = "800px"

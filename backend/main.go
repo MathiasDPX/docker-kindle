@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-yaml"
 	"github.com/moby/moby/api/types/container"
@@ -73,6 +74,13 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Content-Type", "Authorization"}
+	config.ExposeHeaders = []string{"Content-Length"}
+	r.Use(cors.New(config))
 
 	r.GET("/", func(ctx *gin.Context) {
 		containers, err := cli.ContainerList(context.Background(), client.ContainerListOptions{

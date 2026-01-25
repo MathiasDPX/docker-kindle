@@ -55,3 +55,9 @@ li span {
     padding-right: 0.2em;
     float: right;
 }
+
+span#error {
+    font-size: 2em;
+    display: block;
+    text-align: center;
+}
