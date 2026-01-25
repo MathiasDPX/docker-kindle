@@ -62,6 +62,7 @@ func main() {
 				"name":   c.Names[0][1:],
 				"state":  c.State,
 				"status": c.Status,
+				"image":  c.Image,
 			})
 		}
 
