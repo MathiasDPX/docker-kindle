@@ -38,6 +38,7 @@ type ContainerConfig struct {
 	Container string `yaml:"-"`
 	Name      string `yaml:"name"`
 	Icon      string `yaml:"icon"`
+	Hide      bool   `yaml:"hide"`
 }
 
 func LoadConfig(path string) (map[string]ContainerConfig, error) {
@@ -98,6 +99,11 @@ func main() {
 		result := []gin.H{}
 		for _, c := range containers.Items {
 			cfg := configs[c.Names[0][1:]]
+
+			if cfg.Hide == true {
+				continue
+			}
+
 			item := gin.H{
 				"id":     c.ID[:12],
 				"name":   c.Names[0][1:],
