@@ -1,8 +1,6 @@
 containers = document.getElementById('containers')
 
-containerStates = {
-    "running": "Running"
-}
+const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function createContainer(data) {
     containerElem = document.createElement('li')
@@ -12,7 +10,7 @@ function createContainer(data) {
     containerElem.appendChild(titleElem)
 
     stateElem = document.createElement('span')
-    stateElem.innerText = containerStates[data['state']]
+    stateElem.innerText = capitalize(data['state'])
     containerElem.appendChild(stateElem)
 
     statusElem = document.createElement('small')
