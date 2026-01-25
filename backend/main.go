@@ -4,10 +4,12 @@ import (
 	"context"
 	"math"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-yaml"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
 )
@@ -31,6 +33,31 @@ func rank(state container.ContainerState) int {
 	return math.MaxInt
 }
 
+type ContainerConfig struct {
+	Container string `yaml:"-"`
+	Name      string `yaml:"name"`
+	Icon      string `yaml:"icon"`
+}
+
+func LoadConfig(path string) (map[string]ContainerConfig, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	raw := make(map[string]ContainerConfig)
+	if err := yaml.Unmarshal(data, &raw); err != nil {
+		return nil, err
+	}
+
+	for key, cfg := range raw {
+		cfg.Container = key
+		raw[key] = cfg
+	}
+
+	return raw, nil
+}
+
 func main() {
 	cli, err := client.New(
 		client.FromEnv,
@@ -38,6 +65,11 @@ func main() {
 
 	if err != nil {
 		panic(err)
+	}
+
+	configs, err := LoadConfig("config.yml")
+	if err != nil {
+		configs = make(map[string]ContainerConfig)
 	}
 
 	r := gin.Default()
@@ -57,13 +89,24 @@ func main() {
 
 		result := []gin.H{}
 		for _, c := range containers.Items {
-			result = append(result, gin.H{
+			cfg := configs[c.Names[0][1:]]
+			item := gin.H{
 				"id":     c.ID[:12],
 				"name":   c.Names[0][1:],
 				"state":  c.State,
 				"status": c.Status,
 				"image":  c.Image,
-			})
+			}
+
+			if cfg.Name != "" {
+				item["displayName"] = cfg.Name
+			}
+
+			if cfg.Icon != "" {
+				item["icon"] = cfg.Icon
+			}
+
+			result = append(result, item)
 		}
 
 		ctx.JSON(http.StatusOK, result)

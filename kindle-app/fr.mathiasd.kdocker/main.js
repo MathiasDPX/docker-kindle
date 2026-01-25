@@ -6,7 +6,7 @@ function createContainer(data) {
     containerElem = document.createElement('li')
 
     titleElem = document.createElement('h3')
-    titleElem.innerText = data['name']
+    titleElem.innerHTML = (data['icon'] || "") + "\n" + (data['displayName'] || data['name'])
     containerElem.appendChild(titleElem)
 
     stateElem = document.createElement('span')
@@ -26,7 +26,9 @@ createContainer({
     "image": "tailscale/tailscale:stable",
     "name": "tailscale",
     "state": "running",
-    "status": "Up 2 weeks"
+    "status": "Up 2 weeks",
+    "displayName": "Tailscale",
+    "icon": '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Tailscale</title><path d="M24 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-9 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm0-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6-6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 24a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm18 .5a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm9-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-3 2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 5.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>'
 })
 
 if (!navigator.userAgent.includes("Kindle") && !navigator.userAgent.includes("Silk")) {
