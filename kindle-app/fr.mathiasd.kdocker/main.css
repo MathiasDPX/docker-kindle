@@ -28,6 +28,7 @@ li {
 
 li small {
     font-size: 0.75em;
+    padding-left: 2.1em;
 }
 
 li:nth-child(odd) {
@@ -38,6 +39,10 @@ li h3 {
     left: 10px;
     font-weight: 500;
     display: inline;
+}
+
+li:not(:has(svg)) h3 {
+    padding-left: 1.3em;
 }
 
 li svg {
