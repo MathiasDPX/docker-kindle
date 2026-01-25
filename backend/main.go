@@ -28,7 +28,7 @@ func main() {
 			panic(err)
 		}
 
-		var result []gin.H
+		result := []gin.H{}
 		for _, c := range containers.Items {
 			result = append(result, gin.H{
 				"id":     c.ID[:12],
