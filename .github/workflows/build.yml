@@ -7,6 +7,7 @@ on:
     paths:
       - "kindle-app-go/**"
       - ".github/workflows/**"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,6 +25,8 @@ jobs:
         working-directory: kindle-app-go
         env:
           API_URL: ${{ vars.API_URL }}
+          GOARCH: arm
+          GOARM: 5
         run: |
           go build -o docker-kindle \
             -ldflags "-X 'main.API_URL=${API_URL}'"
