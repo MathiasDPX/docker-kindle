@@ -16,11 +16,16 @@ var wnd nucular.MasterWindow
 var containers []Container
 var errorMsg string
 
-const API_URL = "http://caterpillar:8080"
+var API_URL string
 
 func main() {
 	wnd = nucular.NewMasterWindowSize(0, "L:A_N:fr.mathiasd.kdocker:app", image.Pt(768, 1024-24), updatefn)
 	wnd.SetStyle(style.FromTheme(style.WhiteTheme, 2))
+
+	// dev env
+	if API_URL == "" {
+		API_URL = "http://localhost:8080"
+	}
 
 	go func() {
 		for {
