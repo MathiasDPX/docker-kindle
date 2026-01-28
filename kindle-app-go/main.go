@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"image"
-	"image/color"
+	"net/http"
 	"time"
 
 	"github.com/aarzilli/nucular"
@@ -10,24 +12,98 @@ import (
 )
 
 var wnd nucular.MasterWindow
+var containers []Container
+var errorMsg string
+
+const API_URL = "http://caterpillar:8080"
 
 func main() {
 	wnd = nucular.NewMasterWindowSize(0, "L:A_N:fr.mathiasd.kdocker:app", image.Pt(768, 1024-24), updatefn)
 	wnd.SetStyle(style.FromTheme(style.WhiteTheme, 2))
+
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			loadContainers()
+		}
+	}()
+
 	go clear(wnd)
+
 	wnd.Main()
+}
+
+type Container struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	DisplayName string `json:"displayName"`
+	State       string `json:"state"`
+	Status      string `json:"status"`
+	Image       string `json:"image"`
+	Icon        string `json:"icon"`
+}
+
+func loadContainers() {
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(API_URL + "/")
+	if err != nil {
+		errorMsg = "Failed to load containers"
+		wnd.Changed()
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		errorMsg = fmt.Sprintf("HTTP %d", resp.StatusCode)
+		wnd.Changed()
+		return
+	}
+
+	var newContainers []Container
+	if err := json.NewDecoder(resp.Body).Decode(&newContainers); err != nil {
+		errorMsg = "Failed to decode API response"
+		wnd.Changed()
+		return
+	}
+
+	errorMsg = ""
+	containers = newContainers
+	wnd.Changed()
 }
 
 func updatefn(w *nucular.Window) {
 	w.Row(40).Dynamic(1)
-	w.LabelColored("kDocker", "CC", color.RGBA{0, 0, 0, 255})
+	w.Label("kDocker", "CC")
 
-	w.Row(15).Dynamic(2)
-	w.Label("Prometheus", "LC")
-	w.Label("Running", "RC")
+	if errorMsg != "" {
+		w.Row(100).Dynamic(1)
+		w.Label(errorMsg, "CC")
+		return
+	}
 
-	w.Row(10).Dynamic(1)
-	w.Label("Up for 5 months", "LC")
+	if len(containers) == 0 {
+		w.Row(100).Dynamic(1)
+		w.Label("Loading...", "CC")
+		return
+	}
+
+	for _, container := range containers {
+		w.Row(15).Dynamic(2)
+
+		displayName := container.Name
+		if container.DisplayName != "" {
+			displayName = container.DisplayName
+		}
+		w.Label(displayName, "LC")
+		w.Label(container.Status, "RC")
+
+		w.Row(10).Dynamic(1)
+		w.Label(container.State, "LC")
+
+		// Gap between containers
+		w.Row(5).Dynamic(1)
+		w.Spacing(1)
+	}
 }
 
 // hack to flash the buffer dark to clear ghosting
