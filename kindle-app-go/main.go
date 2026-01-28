@@ -9,19 +9,25 @@ import (
 	"github.com/aarzilli/nucular/style"
 )
 
-var count int
 var wnd nucular.MasterWindow
 
 func main() {
-	wnd = nucular.NewMasterWindowSize(0, "L:A_N:application_ID:test", image.Pt(768, 1024-24), updatefn)
+	wnd = nucular.NewMasterWindowSize(0, "L:A_N:fr.mathiasd.kdocker:app", image.Pt(768, 1024-24), updatefn)
 	wnd.SetStyle(style.FromTheme(style.WhiteTheme, 2))
 	go clear(wnd)
 	wnd.Main()
 }
 
 func updatefn(w *nucular.Window) {
-	w.Row(60).Dynamic(1)
+	w.Row(40).Dynamic(1)
 	w.LabelColored("kDocker", "CC", color.RGBA{0, 0, 0, 255})
+
+	w.Row(15).Dynamic(2)
+	w.Label("Prometheus", "LC")
+	w.Label("Running", "RC")
+
+	w.Row(10).Dynamic(1)
+	w.Label("Up for 5 months", "LC")
 }
 
 // hack to flash the buffer dark to clear ghosting
