@@ -27,7 +27,7 @@ jobs:
       - name: Upload folder
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./kindle-app/fr.mathiasd.kdocker
+          path: ./kindle-app-web/fr.mathiasd.kdocker
 
   deploy:
     environment:
