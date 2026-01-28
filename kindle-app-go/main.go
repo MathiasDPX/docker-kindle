@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/aarzilli/nucular"
@@ -108,10 +109,10 @@ func updatefn(w *nucular.Window) {
 			displayName = container.DisplayName
 		}
 		w.Label(displayName, "LC")
-		w.Label(container.Status, "RC")
+		w.Label(strings.Title(container.State), "RC")
 
 		w.Row(10).Dynamic(1)
-		w.Label(container.State, "LC")
+		w.Label(container.Status, "LC")
 
 		// Gap between containers
 		w.Row(5).Dynamic(1)
