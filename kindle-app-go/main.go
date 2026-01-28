@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/color"
 	"net/http"
 	"time"
 
@@ -87,7 +88,14 @@ func updatefn(w *nucular.Window) {
 		return
 	}
 
-	for _, container := range containers {
+	for i, container := range containers {
+		if i%2 == 1 {
+			bounds := w.WidgetBounds()
+			bounds.H = 80
+			bounds.Y -= 7
+			w.Commands().FillRect(bounds, 0, color.RGBA{150, 150, 150, 255})
+		}
+
 		w.Row(15).Dynamic(2)
 
 		displayName := container.Name
