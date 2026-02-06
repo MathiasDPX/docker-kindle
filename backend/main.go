@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"io"
 	"math"
 	"net/http"
 	"os"
 	"sort"
 	"strings"
 
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-yaml"
@@ -123,13 +123,14 @@ func getContainerLogs(cli *client.Client) gin.HandlerFunc {
 		}
 		defer logs.Close()
 
-		logBytes, err := io.ReadAll(logs)
+		var out strings.Builder
+		_, err = stdcopy.StdCopy(&out, &out, logs)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read logs"})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"logs": string(logBytes)})
+		ctx.JSON(http.StatusOK, gin.H{"logs": out.String()})
 	}
 }
 
