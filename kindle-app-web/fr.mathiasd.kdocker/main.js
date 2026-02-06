@@ -7,7 +7,8 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 function createContainer(data) {
     containerElem = document.createElement('li')
 
-    titleElem = document.createElement('h3')
+    titleElem = document.createElement('a')
+    titleElem.href = "/logs.html?id=" + data['id']
     titleElem.innerHTML = (data['icon'] || "") + "\n" + (data['displayName'] || data['name'])
     containerElem.appendChild(titleElem)
 

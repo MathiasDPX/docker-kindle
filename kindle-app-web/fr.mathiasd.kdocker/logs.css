@@ -16,6 +16,11 @@ h1.title {
     text-align: center;
 }
 
+a {
+    text-decoration: none;
+    color: #000000;
+}
+
 pre#logs {
     width: 90%;
     height: 85%;
@@ -24,6 +29,9 @@ pre#logs {
     resize: none;
     overflow: scroll;
     scrollbar-width: none;
+
+    border: 1px solid #000000;
+    padding: 0.25em;
 
     color: #000000;
 }

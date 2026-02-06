@@ -35,13 +35,16 @@ li:nth-child(odd) {
     background-color: #ccc;
 }
 
-li h3 {
+li a {
     left: 10px;
     font-weight: 500;
     display: inline;
+
+    text-decoration: none;
+    color: #000000;
 }
 
-li:not(:has(svg)) h3 {
+li:not(:has(svg)) a {
     padding-left: 1.3em;
 }
 
