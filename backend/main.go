@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"math"
 	"net/http"
 	"os"
@@ -60,30 +61,8 @@ func LoadConfig(path string) (map[string]ContainerConfig, error) {
 	return raw, nil
 }
 
-func main() {
-	cli, err := client.New(
-		client.FromEnv,
-	)
-
-	if err != nil {
-		panic(err)
-	}
-
-	configs, err := LoadConfig("config.yml")
-	if err != nil {
-		configs = make(map[string]ContainerConfig)
-	}
-
-	r := gin.Default()
-
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Content-Type", "Authorization"}
-	config.ExposeHeaders = []string{"Content-Length"}
-	r.Use(cors.New(config))
-
-	r.GET("/", func(ctx *gin.Context) {
+func listContainers(cli *client.Client, configs map[string]ContainerConfig) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		containers, err := cli.ContainerList(context.Background(), client.ContainerListOptions{
 			All: true,
 		})
@@ -124,7 +103,61 @@ func main() {
 		}
 
 		ctx.JSON(http.StatusOK, result)
-	})
+	}
+}
+
+func getContainerLogs(cli *client.Client) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+
+		options := client.ContainerLogsOptions{
+			ShowStdout: true,
+			ShowStderr: true,
+			Tail:       "50",
+		}
+
+		logs, err := cli.ContainerLogs(context.Background(), id, options)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Container not found"})
+			return
+		}
+		defer logs.Close()
+
+		logBytes, err := io.ReadAll(logs)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read logs"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"logs": string(logBytes)})
+	}
+}
+
+func main() {
+	cli, err := client.New(
+		client.FromEnv,
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	configs, err := LoadConfig("config.yml")
+	if err != nil {
+		configs = make(map[string]ContainerConfig)
+	}
+
+	r := gin.Default()
+
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Content-Type", "Authorization"}
+	config.ExposeHeaders = []string{"Content-Length"}
+	r.Use(cors.New(config))
+
+	r.GET("/", listContainers(cli, configs))
+	r.GET("/logs/:id", getContainerLogs(cli))
 
 	r.Run()
 }
