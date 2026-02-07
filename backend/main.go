@@ -61,6 +61,14 @@ func LoadConfig(path string) (map[string]ContainerConfig, error) {
 	return raw, nil
 }
 
+func getBestName(containerName string, configs map[string]ContainerConfig) string {
+	cfg := configs[containerName]
+	if cfg.Name != "" {
+		return cfg.Name
+	}
+	return containerName
+}
+
 func listContainers(cli *client.Client, configs map[string]ContainerConfig) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		containers, err := cli.ContainerList(context.Background(), client.ContainerListOptions{
@@ -77,7 +85,8 @@ func listContainers(cli *client.Client, configs map[string]ContainerConfig) gin.
 
 		result := []gin.H{}
 		for _, c := range containers.Items {
-			cfg := configs[c.Names[0][1:]]
+			containerName := c.Names[0][1:]
+			cfg := configs[containerName]
 
 			if cfg.Hide == true {
 				continue
@@ -85,14 +94,15 @@ func listContainers(cli *client.Client, configs map[string]ContainerConfig) gin.
 
 			item := gin.H{
 				"id":     c.ID[:12],
-				"name":   c.Names[0][1:],
+				"name":   containerName,
 				"state":  c.State,
 				"status": c.Status,
 				"image":  c.Image,
 			}
 
-			if cfg.Name != "" {
-				item["displayName"] = cfg.Name
+			displayName := getBestName(containerName, configs)
+			if displayName != containerName {
+				item["displayName"] = displayName
 			}
 
 			if cfg.Icon != "" {
@@ -106,7 +116,7 @@ func listContainers(cli *client.Client, configs map[string]ContainerConfig) gin.
 	}
 }
 
-func getContainerLogs(cli *client.Client) gin.HandlerFunc {
+func getContainerLogs(cli *client.Client, configs map[string]ContainerConfig) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id := ctx.Param("id")
 
@@ -130,7 +140,16 @@ func getContainerLogs(cli *client.Client) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"logs": out.String()})
+		data, err := cli.ContainerInspect(context.Background(), id, client.ContainerInspectOptions{})
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to inspect container"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"container": getBestName(data.Container.Name[1:], configs),
+			"logs":      out.String(),
+		})
 	}
 }
 
@@ -158,7 +177,7 @@ func main() {
 	r.Use(cors.New(config))
 
 	r.GET("/", listContainers(cli, configs))
-	r.GET("/logs/:id", getContainerLogs(cli))
+	r.GET("/logs/:id", getContainerLogs(cli, configs))
 
 	r.Run()
 }

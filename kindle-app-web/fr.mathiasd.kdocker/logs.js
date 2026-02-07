@@ -1,7 +1,8 @@
 const API_URL = 'http://caterpillar:8080'
 
 let params = new URLSearchParams(document.location.search);
-logs = document.getElementById('logs')
+logs = document.getElementById('logs');
+container_name = document.getElementById('container-name');
 
 async function loadLogs() {
     try {
@@ -15,7 +16,9 @@ async function loadLogs() {
             throw new Error(`HTTP ${response.status}`)
         }
         const data = await response.json()
+
         logs.innerText = data['logs']
+        container_name.innerText = data['container']
     } catch (err) {
         logs.innerHTML = `Unable to load logs<br><br>${err}`;
     }

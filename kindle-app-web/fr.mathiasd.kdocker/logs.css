@@ -13,7 +13,14 @@ body {
 
 h1.title {
     margin: 0.5em 0;
+    margin-bottom: 0;
     text-align: center;
+}
+
+h3 {
+    text-align: center;
+    margin-bottom: 1em;
+    font-weight: initial;
 }
 
 a {
@@ -23,7 +30,7 @@ a {
 
 pre#logs {
     width: 90%;
-    height: 85%;
+    height: 82%;
     margin: 0 auto;
     display: block;
     resize: none;
