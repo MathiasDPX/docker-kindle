@@ -16,8 +16,17 @@ h1.title {
     text-align: center;
 }
 
+#containers {
+    height: 87.5%;
+}
+
 ul {
     list-style-type: none;
+    display: block;
+    height: 100%;
+    flex: 1;
+    overflow-y: scroll;
+    scrollbar-width: none;
 }
 
 li {
