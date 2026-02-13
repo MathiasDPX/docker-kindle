@@ -172,7 +172,7 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Content-Type", "Authorization"}
+	config.AllowHeaders = []string{"Content-Type", "Authorization", "Cache-Control"}
 	config.ExposeHeaders = []string{"Content-Length"}
 	r.Use(cors.New(config))
 

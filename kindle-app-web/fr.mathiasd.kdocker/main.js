@@ -23,25 +23,38 @@ function createContainer(data) {
     containersList.appendChild(containerElem)
 }
 
-async function loadContainers() {
+function loadContainers() {
     containers.innerHTML = '';
     containersList = document.createElement('ul')
     containers.appendChild(containersList)
     
-    try {
-        const response = await fetch(`${API_URL}/`, { cache: 'no-store' })
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`)
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', `${API_URL}/`, true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const items = JSON.parse(xhr.responseText);
+                items.forEach(createContainer);
+            } catch (err) {
+                containers.innerHTML = '<span id="error">Failed to parse response</span>';
+                console.error('Error parsing response:', err);
+            }
+        } else {
+            containers.innerHTML = '<span id="error">Failed to load containers: HTTP ' + xhr.status + '</span>';
         }
-        const items = await response.json()
-        items.forEach(createContainer)
-    } catch (err) {
-        containers.innerHTML = '<span id="error">Failed to load containers</span>';
-    }
+    };
+    
+    xhr.onerror = function() {
+        containers.innerHTML = '<span id="error">Failed to load containers: Network error</span>';
+        console.error('Network error');
+    };
+    
+    xhr.send();
 }
 
+loadContainers()
 document.addEventListener('DOMContentLoaded', function() {
-    loadContainers()
     setInterval(function() {
         loadContainers()
     }, CONFIG.REFRESH_RATE * 60 * 1000) // every X minutes
