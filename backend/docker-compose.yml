@@ -1,6 +1,6 @@
 services:
   docker-kindle:
-    image: ghcr.io/mathiasdpx/orpheus-le-gorila:latest
+    image: ghcr.io/mathiasdpx/docker-kindle:latest
     container_name: docker-kindle
     ports:
       - "8080:8080"

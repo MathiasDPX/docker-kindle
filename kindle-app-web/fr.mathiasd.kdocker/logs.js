@@ -1,4 +1,4 @@
-const API_URL = 'http://caterpillar:8080'
+const API_URL = CONFIG.API_URL;
 
 let params = new URLSearchParams(document.location.search);
 logs = document.getElementById('logs');

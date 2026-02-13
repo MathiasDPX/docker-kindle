@@ -1,6 +1,5 @@
-const API_URL = 'http://caterpillar:8080'
-
 containers = document.getElementById('containers')
+const API_URL = CONFIG.API_URL;
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
