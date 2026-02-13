@@ -40,6 +40,9 @@ async function loadContainers() {
     }
 }
 
-setInterval(function() {
+document.addEventListener('DOMContentLoaded', function() {
     loadContainers()
-}, CONFIG.REFRESH_RATE * 60 * 1000) // every X minutes
+    setInterval(function() {
+        loadContainers()
+    }, CONFIG.REFRESH_RATE * 60 * 1000) // every X minutes
+})
