@@ -40,4 +40,6 @@ async function loadContainers() {
     }
 }
 
-loadContainers()
+setInterval(function() {
+    loadContainers()
+}, CONFIG.REFRESH_RATE * 60 * 1000) // every X minutes
